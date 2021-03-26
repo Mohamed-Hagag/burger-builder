@@ -9,7 +9,7 @@ export const authSuccess = (token, id) => {
   return {
     type: actionTypes.AUTH_SUCCESS,
     token: token,
-    userId: id,
+    userOrderId: id,
   };
 };
 
@@ -34,7 +34,44 @@ export const checkAuthTimeout = (expiredTime) => {
   };
 };
 
-export const auth = (email, password, isSignup) => {
+export const storeSuccess = (contactData) => {
+  return {
+    type: actionTypes.STORE_SUCCESS,
+    contactData: contactData,
+  };
+};
+
+export const storeContactData = (contactData, token) => {
+  return (dispatch) => {
+    axios
+      .post(
+        `https://react-my-burger-df27e-default-rtdb.firebaseio.com/users.json?auth=${token}`,
+        contactData
+      )
+      .then((res) => {
+        dispatch(storeSuccess(contactData));
+      });
+  };
+};
+
+export const fetchContactData = (token, email) => {
+  return (dispatch) => {
+    axios
+      .get(
+        `https://react-my-burger-df27e-default-rtdb.firebaseio.com/users.json?auth=${token}&orderBy="email"&equalTo="${email}"`
+      )
+      .then((res) => {
+        dispatch(storeSuccess(Object.values(res.data)[0]));
+      });
+  };
+};
+export const authSwitch = () => {
+  return {
+    type: actionTypes.AUTH_SWITCH,
+  };
+};
+
+export const auth = (email, password, isSignup, contactData) => {
   return (dispatch) => {
     dispatch(authStart());
     const authData = {
@@ -55,6 +92,14 @@ export const auth = (email, password, isSignup) => {
         dispatch(checkAuthTimeout(res.data.expiresIn));
         localStorage.setItem("token", res.data.idToken);
         localStorage.setItem("expiredDate", res.data.expiresIn);
+        localStorage.setItem("userOrderId", res.data.localId);
+        localStorage.setItem("email", email);
+        if (isSignup) {
+          dispatch(storeContactData(contactData, res.data.idToken));
+        }
+        if (!isSignup) {
+          dispatch(fetchContactData(res.data.idToken, email));
+        }
       })
       .catch((error) => {
         dispatch(authFail(error.response.data.error));

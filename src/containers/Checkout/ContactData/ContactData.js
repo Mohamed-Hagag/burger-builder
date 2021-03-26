@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import axios from "../../../axios-orders";
-import * as orderActions from "../../../store/actions/index";
+import * as actions from "../../../store/actions/index";
 import Input from "../../../components/UI/Input/Input";
 import Button from "../../../components/UI/Button/Button";
 import Spinner from "../../../components/UI/Spinner/Spinner";
@@ -17,51 +17,52 @@ class ContactData extends Component {
         elementConfig: {
           type: "text",
           placeholder: "Your Name",
-          valuetype: "Name",
         },
-        value: "",
-        valid: false,
-        validation: { required: true, minLength: 3, maxLength: 10 },
+        valueType: "Name",
+        errorMessage: "Please enter a valid Name",
+        value: this.props.contactData.userName,
+        valid: true,
+        validation: {
+          required: true,
+          minLength: 3,
+          maxLength: 10,
+          isName: true,
+        },
         touched: false,
       },
-      email: {
-        elementType: "input",
+      address: {
+        elementType: "textarea",
         elementConfig: {
-          type: "email",
-          placeholder: "Your E-mail",
-          valuetype: "E-mail",
+          type: "text",
+          placeholder: "Your Address",
         },
-        value: "",
-        valid: false,
+        valueType: "Address",
+        errorMessage: "Please enter a valid Address",
+
+        value: this.props.contactData.address,
+        valid: true,
         touched: false,
-        validation: { required: true, minLength: 3, isEmail: true },
+        validation: { required: true, minLength: 6 },
       },
-      street: {
+      mobileNumber: {
         elementType: "input",
         elementConfig: {
           type: "text",
-          placeholder: "Your Street",
-          valuetype: "Street",
+          placeholder: "Your Mobile",
         },
-        value: "",
-        valid: false,
+        valueType: "Phone",
+        errorMessage: "Please enter a valid Mobile",
+
+        value: this.props.contactData.mobile,
+        valid: true,
         touched: false,
-        validation: { required: true, minLength: 3, maxLength: 10 },
-      },
-      zipCode: {
-        elementType: "input",
-        elementConfig: {
-          type: "text",
-          placeholder: "ZIP code",
-          valuetype: "Code",
+        validation: {
+          required: true,
+          isMobile: true,
         },
-        value: "",
-        valid: false,
-        touched: false,
-        validation: { required: true, minLength: 3, maxLength: 10 },
       },
     },
-    formIsValid: false,
+    formIsValid: true,
   };
   componentDidUpdate(prevProps, prevState) {
     let formIsValid = true;
@@ -83,7 +84,7 @@ class ContactData extends Component {
       ingredients: this.props.ingredients,
       totalPrice: this.props.totalPrice,
       customer: formData,
-      userId: this.props.userId,
+      userOrderId: this.props.userOrderId,
     };
     this.props.onOrderBurger(order, this.props.token);
   };
@@ -118,8 +119,11 @@ class ContactData extends Component {
         {orderFormArray.map((el) => {
           return (
             <Input
+              customClassName
+              errorMessage={el.config.errorMessage}
               invalid={!el.config.valid}
               touched={el.config.touched}
+              label={el.config.valueType}
               key={el.id}
               elementtype={el.config.elementType}
               elementConfig={el.config.elementConfig}
@@ -155,13 +159,15 @@ const mapStateToProps = (state) => {
     totalPrice: state.burgerBuilder.totalPrice,
     loading: state.order.loading,
     token: state.auth.token,
-    userId: state.auth.userId,
+    userOrderId: state.auth.userOrderId,
+    contactData: state.auth.contactData,
+    email: state.auth.email,
   };
 };
 const mapDispatchToProps = (dispatch) => {
   return {
     onOrderBurger: (orderData, token) =>
-      dispatch(orderActions.purchaseStart(orderData, token)),
+      dispatch(actions.purchaseStart(orderData, token)),
   };
 };
 export default connect(

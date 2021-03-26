@@ -1,29 +1,16 @@
 import React, { Component, Fragment } from "react";
 import { connect } from "react-redux";
 import { Redirect } from "react-router";
-import Input from "../../components/UI/Input/Input";
-import Button from "../../components/UI/Button/Button";
-import styles from "./Auth.module.css";
-import * as actions from "../../store/actions/index";
-import Spinner from "../../components/UI/Spinner/Spinner";
-import { inputValidation } from "../../utility/utility";
-import Login from "./Login/Login";
+import Input from "../../../components/UI/Input/Input";
+import Button from "../../../components/UI/Button/Button";
+import styles from "../Auth.module.css";
+import * as actions from "../../../store/actions/index";
+import Spinner from "../../../components/UI/Spinner/Spinner";
+import { inputValidation } from "../../../utility/utility";
 
-class Auth extends Component {
+class Login extends Component {
   state = {
     controls: {
-      userName: {
-        elementType: "input",
-        elementConfig: {
-          type: "text",
-          placeholder: "Your Name",
-        },
-        errorMessage: "Please enter a valid Name",
-        value: "",
-        valid: false,
-        validation: { required: true, isName: true },
-        touched: false,
-      },
       email: {
         elementType: "input",
         elementConfig: {
@@ -42,47 +29,10 @@ class Auth extends Component {
           type: "password",
           placeholder: "Password",
         },
-        errorMessage: "Please enter a valid Password",
+        errorMessage: "Please enter a Password",
         value: "",
         valid: false,
         validation: { required: true, minLength: 6 },
-        touched: false,
-      },
-      rePassword: {
-        elementType: "input",
-        elementConfig: {
-          type: "password",
-          placeholder: "Re-Password",
-        },
-        errorMessage: "Password doesn't match",
-        value: "",
-        valid: false,
-        validation: { required: true, minLength: 6 },
-        touched: false,
-      },
-
-      address: {
-        elementType: "textarea",
-        elementConfig: {
-          type: "textarea",
-          placeholder: "Your Address",
-        },
-        errorMessage: "Please enter a valid Address",
-        value: "",
-        valid: false,
-        validation: { required: true, minLength: 6 },
-        touched: false,
-      },
-      mobile: {
-        elementType: "input",
-        elementConfig: {
-          type: "text",
-          placeholder: "Your Mobile",
-        },
-        errorMessage: "Please enter a valid Mobile",
-        value: "",
-        valid: false,
-        validation: { required: true, isMobile: true },
         touched: false,
       },
     },
@@ -108,18 +58,9 @@ class Auth extends Component {
       updatedFormElement.value
     );
     updatedRegisterForm[id] = updatedFormElement;
-
-    const password = { ...updatedRegisterForm.password };
-    const confirmPassword = { ...updatedRegisterForm.rePassword };
-    if (confirmPassword.value !== password.value) {
-      confirmPassword.valid = false;
-    } else {
-      confirmPassword.valid = true;
-    }
-    updatedRegisterForm.rePassword = confirmPassword;
-
     this.setState({ controls: updatedRegisterForm });
   };
+
   errorHandler = (id) => {
     const updatedRegisterForm = { ...this.state.controls };
     const updatedFormElement = { ...updatedRegisterForm[id] };
@@ -127,23 +68,17 @@ class Auth extends Component {
     updatedRegisterForm[id] = updatedFormElement;
     this.setState({ controls: updatedRegisterForm });
   };
+
   submitHandler = (e) => {
     e.preventDefault();
-    const contactData = {
-      userName: this.state.controls.userName.value,
-      email: this.state.controls.email.value,
-      mobile: this.state.controls.mobile.value,
-      address: this.state.controls.address.value,
-    };
     this.props.onAuth(
       this.state.controls.email.value,
       this.state.controls.password.value,
-      this.props.isSignup,
-      contactData
+      this.props.isSignup
     );
   };
 
-  switchHandler = (e) => {
+  switchHandler = () => {
     this.props.onSwitch();
   };
 
@@ -174,10 +109,10 @@ class Auth extends Component {
 
     let errorMessage = null;
     if (this.props.error) {
-      if (this.props.error.message === "EMAIL_EXISTS") {
+      if (this.props.error.message === "EMAIL_NOT_FOUND") {
         errorMessage = (
           <p style={{ fontWeight: "500", color: "red" }}>
-            This Email is already exists
+            This Email doesn't exist
           </p>
         );
       }
@@ -190,7 +125,7 @@ class Auth extends Component {
     if (this.props.loading && this.props.error == null) {
       form = <Spinner />;
     }
-    let authPage = (
+    let loginPage = (
       <div className={styles.Auth}>
         <form onSubmit={this.submitHandler}>
           {form}
@@ -205,16 +140,13 @@ class Auth extends Component {
       </div>
     );
     if (this.props.isAuth) {
-      authPage = <Redirect to="/" />;
+      loginPage = <Redirect to="/" />;
       if (this.props.building) {
-        authPage = <Redirect to="checkout" />;
+        loginPage = <Redirect to="checkout" />;
       }
     }
-    if (!this.props.isSignup) {
-      authPage = <Login />;
-    }
 
-    return authPage;
+    return loginPage;
   }
 }
 
@@ -226,15 +158,14 @@ const mapStateToProps = (state) => {
     building: state.burgerBuilder.building,
     userOrderId: state.auth.userOrderId,
     isSignup: state.auth.isSignup,
-    token: state.auth.token,
   };
 };
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    onAuth: (email, password, isSignup, contactData) =>
-      dispatch(actions.auth(email, password, isSignup, contactData)),
+    onAuth: (email, password, isSignup) =>
+      dispatch(actions.auth(email, password, isSignup)),
     onSwitch: () => dispatch(actions.authSwitch()),
   };
 };
-export default connect(mapStateToProps, mapDispatchToProps)(Auth);
+export default connect(mapStateToProps, mapDispatchToProps)(Login);

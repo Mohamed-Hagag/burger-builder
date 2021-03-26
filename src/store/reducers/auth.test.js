@@ -5,7 +5,7 @@ describe("auth reducer", () => {
   it("should return the initial state", () => {
     expect(reducer(undefined, {})).toEqual({
       token: null || localStorage.getItem("token"),
-      userId: null,
+      userOrderId: null,
       error: null,
       loading: false,
     });
@@ -15,12 +15,17 @@ describe("auth reducer", () => {
       reducer(
         {
           token: null || localStorage.getItem("token"),
-          userId: null,
+          userOrderId: null,
           error: null,
           loading: false,
         },
-        { type: actionTypes.AUTH_SUCCESS, token: "TOKEN", userId: "ID" }
+        { type: actionTypes.AUTH_SUCCESS, token: "TOKEN", userOrderId: "ID" }
       )
-    ).toEqual({ token: "TOKEN", userId: "ID", loading: false, error: null });
+    ).toEqual({
+      token: "TOKEN",
+      userOrderId: "ID",
+      loading: false,
+      error: null,
+    });
   });
 });

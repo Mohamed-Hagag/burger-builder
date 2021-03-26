@@ -3,10 +3,14 @@ import { connect } from "react-redux";
 import { Redirect, Route } from "react-router-dom";
 import CheckoutSummery from "../../components/Order/CheckoutSummery/CheckoutSummery";
 import ContactData from "./ContactData/ContactData";
+import * as actions from "../../store/actions/index";
 class Checkout extends Component {
+  componentDidMount() {
+    this.props.onFetchContactData(this.props.token, this.props.email);
+  }
+
   checkoutCanceled = () => {
     this.props.history.goBack();
-    // setTimeout(() => {}, 10000);
   };
   checkoutContinued = () => {
     this.props.history.replace("/checkout/contact-data");
@@ -42,7 +46,17 @@ const mapStateToProps = (state) => {
   return {
     ingredients: state.burgerBuilder.ingredients,
     redirect: state.order.redirect,
+    token: state.auth.token,
+    userOrderId: state.auth.userOrderId,
+    contactData: state.auth.contactData,
+    email: state.auth.email,
+  };
+};
+const matDispatchToProps = (dispatch) => {
+  return {
+    onFetchContactData: (token, email) =>
+      dispatch(actions.fetchContactData(token, email)),
   };
 };
 
-export default connect(mapStateToProps)(Checkout);
+export default connect(mapStateToProps, matDispatchToProps)(Checkout);

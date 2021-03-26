@@ -40,7 +40,7 @@ export const purchaseStart = (orderData, token) => {
 
     setTimeout(() => {
       dispatch(purchaseRedirect());
-    }, 5000);
+    }, 4000);
   };
 };
 export const fetchOrdersSuccess = (orders) => {
@@ -61,11 +61,13 @@ export const fetchOrdersStart = () => {
   };
 };
 
-export const fetchOrders = (token, userId) => {
+export const fetchOrders = (token, userOrderId) => {
   return (dispatch) => {
     dispatch(fetchOrdersStart());
     axios
-      .get(`/orders.json?auth=${token}&orderBy="userId"&equalTo="${userId}"`)
+      .get(
+        `/orders.json?auth=${token}&orderBy="userOrderId"&equalTo="${userOrderId}"`
+      )
       .then((res) => {
         const fetchedOrders = [];
         for (let key in res.data) {
@@ -73,6 +75,8 @@ export const fetchOrders = (token, userId) => {
         }
         dispatch(fetchOrdersSuccess(fetchedOrders));
       })
-      .catch((error) => dispatch(fetchOrdersFail(error)));
+      .catch((error) => {
+        dispatch(fetchOrdersFail(error));
+      });
   };
 };

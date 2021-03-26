@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from "react";
 import axios from "../../axios-orders";
 import { connect } from "react-redux";
-import * as burgerBuilderActions from "../../store/actions/index";
+import * as actions from "../../store/actions/index";
 import Burger from "../../components/Burger/Burger";
 import BuildControls from "../../components/Burger/BuildControls/BuildControls";
 import Modal from "../../components/UI/Modal/Modal";
@@ -39,6 +39,7 @@ export class BurgerBuilder extends Component {
   };
   purchasingContinue = () => {
     this.props.history.push("/checkout");
+    this.props.onFetchContactData(this.props.token, this.props.email);
   };
 
   render() {
@@ -60,6 +61,7 @@ export class BurgerBuilder extends Component {
           <BuildControls
             added={this.props.onIngredientAdded}
             removed={this.props.onIngredientRemoved}
+            ingredients={this.props.ingredients}
             disabled={disabledInfo}
             price={this.props.totalPrice}
             purchase={this.updatePurchaseState(this.props.ingredients)}
@@ -110,16 +112,19 @@ const mapStateToProps = (state) => {
     error: state.burgerBuilder.error,
     isAuth: state.auth.token !== null,
     redirect: state.order.redirect,
+    token: state.auth.token,
+    email: state.auth.email,
   };
 };
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    onIngredientAdded: (ingName) =>
-      dispatch(burgerBuilderActions.addIngredients(ingName)),
+    onIngredientAdded: (ingName) => dispatch(actions.addIngredients(ingName)),
     onIngredientRemoved: (ingName) =>
-      dispatch(burgerBuilderActions.removeIngredients(ingName)),
-    onInitIngredients: () => dispatch(burgerBuilderActions.initIngredients()),
+      dispatch(actions.removeIngredients(ingName)),
+    onInitIngredients: () => dispatch(actions.initIngredients()),
+    onFetchContactData: (token, email) =>
+      dispatch(actions.fetchContactData(token, email)),
   };
 };
 

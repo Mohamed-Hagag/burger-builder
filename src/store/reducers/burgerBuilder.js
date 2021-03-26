@@ -3,12 +3,12 @@ import { updatedObject } from "../utility";
 
 const initialState = {
   ingredients: null,
-  totalPrice: 4,
+  totalPrice: 20,
   error: false,
   building: false,
 };
 
-const prices = { salad: 0.5, cheese: 0.4, meat: 1.3, bacon: 0.7 };
+const prices = { salad: 3, cheese: 5, meat: 20, bacon: 7 };
 
 const addIngredients = (state, action) => {
   const updatedIngredient = {
@@ -48,7 +48,7 @@ const initIngredients = (state, action) => {
       cheese: action.ingredients.cheese,
       meat: action.ingredients.meat,
     },
-    totalPrice: 4,
+    totalPrice: 20,
     error: false,
     building: false,
   });
